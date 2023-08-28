@@ -111,20 +111,14 @@ class SummarizeGUI:
         # Disbale the button 
         self.create_button.config(state=tk.DISABLED)
 
-        # getting selected files 
-        if hasattr(self, "selected_files"):
-            selected_files = self.selected_files
-        else:
-            messagebox.showwarning("Warning", "Please select the files to be summarized.")
-            self.create_button.config(state=tk.NORMAL)
-            return
-
-        # getting output directory
+        # getting output directory and selected files
         output_directory = self.outlocation_entry.get()
-        if not output_directory:
+        if not output_directory or not hasattr(self, "selected_files"):
             messagebox.showwarning("Warning", "Please provide the output location.")
             self.create_button.config(state=tk.NORMAL)
             return
+        
+        selected_files = self.selected_files
 
         # getting summarization type
         if self.summarization_type.get() == "Summarize the whole":

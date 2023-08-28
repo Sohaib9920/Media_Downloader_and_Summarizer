@@ -21,17 +21,17 @@ class ConsoleRedirector:
 
 
 class PodcastGUI:
-    def __init__(self, root, download_tab):
+    def __init__(self, root, podcast_tab):
         self.root = root
-        self.download_tab = download_tab
+        self.podcast_tab = podcast_tab
 
         # Main Title Label
-        self.title = tk.Label(self.download_tab, text="Podcast Downloader", font="bold 22", fg="white",
+        self.title = tk.Label(self.podcast_tab, text="Podcast Downloader", font="bold 22", fg="white",
                          bg="#1C2321", width=600, pady=10)
         self.title.pack()
 
         # Frame
-        self.main_frame = tk.Frame(self.download_tab, padx=20, pady=30)
+        self.main_frame = tk.Frame(self.podcast_tab, padx=20, pady=30)
         self.main_frame.pack()
 
         # Widgets in Frame

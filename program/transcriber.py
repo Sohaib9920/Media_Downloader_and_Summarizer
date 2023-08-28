@@ -36,7 +36,7 @@ class Transcriber:
         return transcript_id
 
     def get_output(self, transcript_id):
-        print("Fetching output", flush=True)
+        print("Fetching output...", flush=True)
         # Use transcript ID to poll the API every few seconds for transcript output
         polling_endpoint = f"{self.base_url}/transcript/{transcript_id}"
         headers = {"authorization": self.api_key}
