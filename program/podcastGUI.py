@@ -11,10 +11,12 @@ class ConsoleRedirector:
         self.text_widget = text_widget
 
     def write(self, text):
+        # print = stdout.write() 
         self.text_widget.insert(tk.END, text)
         self.text_widget.see(tk.END)
 
     def flush(self):
+        # In order to flush the output present in buffer
         self.text_widget.update_idletasks()
 
 
@@ -75,6 +77,7 @@ class PodcastGUI:
     def download_podcast(self):
         # Making it equal to sys.stdout so that print statements (= sys.stdout.write()) write to text widget rather than console
         sys.stdout = self.console_redirector
+
         # Disbale the button 
         self.create_button.config(state=tk.DISABLED)
 
@@ -127,7 +130,6 @@ class PodcastGUI:
                         except Exception as e:
                             messagebox.showerror("Error", f"An error occurred: {e}")
                         finally:
-                            # Re-enable the button after thread completion (success or error)
                             self.create_button.config(state=tk.NORMAL)
                             self.root.geometry("600x320+500+150")
                             self.console_output.grid_remove()

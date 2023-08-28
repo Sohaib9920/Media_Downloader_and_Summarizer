@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from program.podcastGUI import PodcastGUI
-from program.summerizeGUI import SummarizeGUI
+from program.summarizeGUI import SummarizeGUI
 
 class Program:
     def __init__(self, root):

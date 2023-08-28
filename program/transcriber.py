@@ -10,6 +10,7 @@ class Transcriber:
 
     def upload_file(self, file_path):
         # Upload local media file to Assembly AI API
+        print("Uploading...", flush=True)
         headers = {"authorization": self.api_key}
         with open(file_path, "rb") as f:
             response = requests.post(self.base_url + "/upload", 
@@ -23,6 +24,7 @@ class Transcriber:
     
     def send_transcribe_request(self, audio_url, **kwargs):
         # Sending transcript request to Assembly AI API
+        print("Sending transcibe request...", flush=True)
         json = {"audio_url": audio_url}
         json.update(kwargs)
         headers = {"authorization": self.api_key}
@@ -34,13 +36,14 @@ class Transcriber:
         return transcript_id
 
     def get_output(self, transcript_id):
+        print("Fetching output", flush=True)
         # Use transcript ID to poll the API every few seconds for transcript output
         polling_endpoint = f"{self.base_url}/transcript/{transcript_id}"
         headers = {"authorization": self.api_key}
         while True:
             transcription_result = requests.get(polling_endpoint, headers=headers).json()
             if transcription_result['status'] == 'completed':
-                print("Success!", flush=True)
+                print("Success!\n", flush=True)
                 return transcription_result
             elif transcription_result["status"] == "error":
                 raise RuntimeError(f"Transcription failed: {transcription_result['error']}")
