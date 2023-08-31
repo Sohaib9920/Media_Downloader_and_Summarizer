@@ -3,7 +3,8 @@ from tkinter import messagebox, filedialog
 import sys
 import threading
 from program.youtube import YoutubeDownloader
-
+import pytube
+import time
 
 class ConsoleRedirector:
     # Print output to text widget rather than console
@@ -57,12 +58,12 @@ class YoutubeGUI:
         self.audio_radio = tk.Radiobutton(self.main_frame, text="Audio", variable=self.download_type, value="audio", font=("Arial", 10))
         self.audio_radio.grid(row=2, column=1, padx=(80, 0), sticky="w")
 
-        self.create_button = tk.Button(self.main_frame, text="Download", command=self.download, font=("Arial", 12))
-        self.create_button.grid(row=3, columnspan=2, pady=15) 
+        self.button = tk.Button(self.main_frame, text="Download", command=self.download, font=("Arial", 12))
+        self.button.grid(row=4, columnspan=2, pady=10) 
 
         # Text widget to display Console Ouput
         self.console_output = tk.Text(self.main_frame, wrap=tk.WORD, height=12, width=60)
-        self.console_output.grid(row=4, columnspan=2, pady=10)
+        self.console_output.grid(row=5, columnspan=2, pady=10)
         self.console_output.grid_remove() # Remove initially
 
         # Creating a class with write method which writes to text widget
@@ -75,45 +76,92 @@ class YoutubeGUI:
             self.location_entry.insert(0, selected_directory)
 
     def download(self):
-        # Making it equal to sys.stdout so that print statements (= sys.stdout.write()) write to text widget rather than console
         sys.stdout = self.console_redirector
 
-        # Disbale the button 
-        self.create_button.config(state=tk.DISABLED)
+        self.url = self.url_entry.get()
+        self.download_directory = self.location_entry.get()
+        self.type = self.download_type.get()
 
-        url = self.url_entry.get()
-        download_directory = self.location_entry.get()
-        download_type = self.download_type.get()
-
-        if not url or not download_directory:
-            messagebox.showwarning("Warning", "Limit should be an integer value.")
-            self.create_button.config(state=tk.NORMAL)
+        if not self.url or not self.download_directory:
+            messagebox.showwarning("Warning", "Youtube URL and Download Location must be provided.")
             return
         
         else:
+            self.button.config(state=tk.DISABLED)
             def download_thread():
-                try: 
-                    self.root.geometry("600x530+500+150")
-                    self.console_output.grid()
-
-                    print("----------------------", flush=True)
-                    print("Start!", flush=True)
-
-                    yt = YoutubeDownloader(url)
-                    
-                    if download_type == "video":
-                        yt.download_video(download_directory)
-                    elif download_type == "audio":
-                        yt.download_audio(download_directory, format="mp3")
-                    
-                    messagebox.showinfo("Success", "Downloaded successfully!")
-
+                try:
+                    self.yt = YoutubeDownloader(self.url) 
+                    if self.type == "video":
+                        self.open_resolution_dialog() 
+                    else:
+                        self.download_mp3()
+                except pytube.exceptions.RegexMatchError:
+                    messagebox.showerror("Error", "Invalid Youtube Video URL")
                 except Exception as e:
                     messagebox.showerror("Error", f"An error occurred: {e}")
                 finally:
-                    self.create_button.config(state=tk.NORMAL)
+                    self.button.config(state=tk.NORMAL)
                     self.root.geometry("600x320+500+150")
                     self.console_output.grid_remove()
 
             thread = threading.Thread(target=download_thread)
             thread.start()
+    
+    def download_mp3(self): 
+        self.root.geometry("600x530+500+150")
+        self.console_output.grid()
+        print("----------------------", flush=True)
+        print("Start!", flush=True)
+
+        self.yt.download_mp3(self.download_directory)
+        messagebox.showinfo("Success", "Download Successfully!")
+
+    def open_resolution_dialog(self): 
+        # Create new window above root window
+        resolution_dialog = tk.Toplevel(self.root)
+        resolution_dialog.title("Select Resolution")
+        resolution_dialog.geometry("+740+380")
+        # Make the dialog modal (user must interact with it)
+        resolution_dialog.grab_set()
+
+        resolutions = self.yt.availabe_resolutions()
+        msg = tk.Label(resolution_dialog, text="Resolutions:")
+        msg.pack()
+
+        # Create radio buttons
+        resolution_var = tk.StringVar()
+        resolution_var.set(resolutions[0]) 
+        for resolution in resolutions:
+            tk.Radiobutton(resolution_dialog, text=resolution, variable=resolution_var, value=resolution, font=("Arial", 10)).pack()
+
+        # Create a button to confirm resolution selection
+        confirm_button = tk.Button(resolution_dialog, text="Confirm", command=lambda: self.download_video(resolution_dialog, resolution_var.get()))
+        confirm_button.pack(pady=10)
+
+    def download_video(self, dialog, res):
+        # Video will only be downloaded when resolution dialog is closed with a resolution selected
+        self.console_output.grid()
+        self.root.geometry("600x530+500+150")
+        self.button.config(state=tk.DISABLED)
+
+        self.res = res
+        dialog.destroy()
+
+        # This function runs after the download_thread function in download function has completed, 
+        # So in order to avoid not-responding, we need the download video in a new thread
+        def download_video_thread():
+            print("----------------------", flush=True)
+            print("Start!", flush=True)
+            try:
+                stream, _ = self.yt.get_stream_by_resolution(self.res)
+                self.yt.download_stream(stream, self.download_directory)
+                messagebox.showinfo("Success", "Download Successfully!")
+            except Exception as e:
+                    messagebox.showerror("Error", f"An error occurred: {e}")
+            finally:
+                self.button.config(state=tk.NORMAL)
+                self.root.geometry("600x320+500+150")
+                self.console_output.grid_remove()
+        
+        thread = threading.Thread(target=download_video_thread)
+        thread.start()

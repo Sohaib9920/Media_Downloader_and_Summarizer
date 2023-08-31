@@ -75,8 +75,8 @@ class SummarizeGUI:
         self.summarization_dropdown.grid(row=3, column=1, sticky="w", columnspan=2)
         
         # Submit Button
-        self.create_button = tk.Button(self.main_frame, text="Summarize", command=self.summarize, font=("Arial", 12))
-        self.create_button.grid(row=4, columnspan=3, pady=15) 
+        self.button = tk.Button(self.main_frame, text="Summarize", command=self.summarize, font=("Arial", 12))
+        self.button.grid(row=4, columnspan=3, pady=15) 
 
         # Text widget to display Console Ouput
         self.console_output = tk.Text(self.main_frame, wrap=tk.WORD, height=12, width=60)
@@ -85,8 +85,6 @@ class SummarizeGUI:
 
         # Console redirect
         self.console_redirector = ConsoleRedirector(self.console_output)
-        sys.stdout = self.console_redirector
-
 
     def browse(self):
         selected_directory = filedialog.askdirectory()
@@ -109,13 +107,13 @@ class SummarizeGUI:
         sys.stdout = self.console_redirector
 
         # Disbale the button 
-        self.create_button.config(state=tk.DISABLED)
+        self.button.config(state=tk.DISABLED)
 
         # getting output directory and selected files
         output_directory = self.outlocation_entry.get()
         if not output_directory or not hasattr(self, "selected_files"):
             messagebox.showwarning("Warning", "Please provide the output location.")
-            self.create_button.config(state=tk.NORMAL)
+            self.button.config(state=tk.NORMAL)
             return
         
         selected_files = self.selected_files
@@ -141,7 +139,7 @@ class SummarizeGUI:
                 payload.update({"audio_start_from":start})
             except:
                 messagebox.showwarning("Warning", "Start time must be a integer")
-                self.create_button.config(state=tk.NORMAL)
+                self.button.config(state=tk.NORMAL)
                 return
         
         end = self.end_entry.get()
@@ -151,7 +149,7 @@ class SummarizeGUI:
                 payload.update({"audio_end_at":end})
             except:
                 messagebox.showwarning("Warning", "End time must be a integer")
-                self.create_button.config(state=tk.NORMAL)
+                self.button.config(state=tk.NORMAL)
                 return
 
         # api key
@@ -181,7 +179,7 @@ class SummarizeGUI:
                     messagebox.showerror("Error", f"An error occurred: {e}")
 
                 finally:
-                    self.create_button.config(state=tk.NORMAL)
+                    self.button.config(state=tk.NORMAL)
                     self.root.geometry("600x320+500+150")
                     self.console_output.grid_remove()
 
@@ -190,7 +188,7 @@ class SummarizeGUI:
 
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {e}")
-            self.create_button.config(state=tk.NORMAL)
+            self.button.config(state=tk.NORMAL)
             self.root.geometry("600x320+500+150")
             self.console_output.grid_remove()
 

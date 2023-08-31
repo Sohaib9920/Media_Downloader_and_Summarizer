@@ -57,8 +57,8 @@ class PodcastGUI:
         self.browse_button = tk.Button(self.main_frame, text="Browse", command=self.browse, font=("Arial", 10))
         self.browse_button.grid(row=3, column=1, padx=(5,0), sticky="e")
 
-        self.create_button = tk.Button(self.main_frame, text="Download Podcast", command=self.download_podcast, font=("Arial", 12))
-        self.create_button.grid(row=4, columnspan=2, pady=15) 
+        self.button = tk.Button(self.main_frame, text="Download Podcast", command=self.download_podcast, font=("Arial", 12))
+        self.button.grid(row=4, columnspan=2, pady=15) 
 
         # Text widget to display Console Ouput
         self.console_output = tk.Text(self.main_frame, wrap=tk.WORD, height=12, width=60)
@@ -79,7 +79,7 @@ class PodcastGUI:
         sys.stdout = self.console_redirector
 
         # Disbale the button 
-        self.create_button.config(state=tk.DISABLED)
+        self.button.config(state=tk.DISABLED)
 
         rss_feed_url = self.rss_entry.get()
         filter = self.filter_entry.get()
@@ -95,16 +95,16 @@ class PodcastGUI:
                 limit = int(limit)
             except ValueError:
                 messagebox.showwarning("Warning", "Limit should be an integer value.")
-                self.create_button.config(state=tk.NORMAL)
+                self.button.config(state=tk.NORMAL)
                 return
             
         if not rss_feed_url:
             messagebox.showwarning("Warning", "Please fill in the 'RSS Feed URL' field.")
-            self.create_button.config(state=tk.NORMAL)
+            self.button.config(state=tk.NORMAL)
             return
         elif not download_directory:
             messagebox.showwarning("Warning", "Please provide the 'Location' of downloads.")
-            self.create_button.config(state=tk.NORMAL)
+            self.button.config(state=tk.NORMAL)
             return
         else:
             try:
@@ -130,14 +130,14 @@ class PodcastGUI:
                         except Exception as e:
                             messagebox.showerror("Error", f"An error occurred: {e}")
                         finally:
-                            self.create_button.config(state=tk.NORMAL)
+                            self.button.config(state=tk.NORMAL)
                             self.root.geometry("600x320+500+150")
                             self.console_output.grid_remove()
 
                     thread = threading.Thread(target=download_thread)
                     thread.start()
                 else:
-                    self.create_button.config(state=tk.NORMAL)
+                    self.button.config(state=tk.NORMAL)
                     self.root.geometry("600x320+500+150")
                     self.console_output.grid_remove()
 
@@ -145,4 +145,4 @@ class PodcastGUI:
                 messagebox.showerror("Error", f"An error occurred: {e}")
                 self.root.geometry("600x320+500+150")
                 self.console_output.grid_remove()
-                self.create_button.config(state=tk.NORMAL)
+                self.button.config(state=tk.NORMAL)
