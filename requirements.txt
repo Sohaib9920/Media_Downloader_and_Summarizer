@@ -20,7 +20,9 @@ decorator==4.4.2
 defusedxml==0.7.1
 executing==1.2.0
 fastjsonschema==2.18.0
+ffmpeg-python==0.2.0
 fqdn==1.5.1
+future==0.18.3
 idna==3.4
 imageio==2.31.2
 imageio-ffmpeg==0.4.8
@@ -45,7 +47,6 @@ jupyterlab_server==2.24.0
 MarkupSafe==2.1.3
 matplotlib-inline==0.1.6
 mistune==3.0.1
-moviepy==1.0.3
 nbclient==0.8.0
 nbconvert==7.7.4
 nbformat==5.9.2
